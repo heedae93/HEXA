@@ -1,6 +1,7 @@
 package spring.hexa.domain;
 
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -8,29 +9,58 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MemberTest {
+    Member member;
+    PasswordEncoder passwordEncoder;
+
+    @BeforeEach
+    void setUp () {
+       this.passwordEncoder =  new PasswordEncoder() {
+            @Override
+            public String encode(String password) {
+                return password.toUpperCase();
+            }
+
+            @Override
+            public boolean matches(String password, String passwordHash) {
+                return encode(password).equals(passwordHash);
+            }
+        };
+
+
+        member = Member.create("hdh@test.com", "hdh", "secret",passwordEncoder );
+    }
+
     @Test
     void createMember () {
-        Member member = new Member("hdh@test.com", "hdh","secret");
-
         assertThat(member.getStatus()).isEqualTo(MemberStatus.PENDING);
     }
 
     @Test
     void nullCheck () {
-        assertThatThrownBy(() -> new Member(null,"hdh","secret"))
+        assertThatThrownBy(() -> member.create(null, "hdh", "secret", new PasswordEncoder() {
+            @Override
+            public String encode(String password) {
+                return "";
+            }
+
+            @Override
+            public boolean matches(String password, String passwordHash) {
+                return false;
+            }
+        }))
                 .isInstanceOf(NullPointerException.class);
     }
 
     @Test
     void activate () {
-        Member member = new Member("hdh@test.com","hdh","secret");
+
         member.activate();
         assertThat(member.getStatus()).isEqualTo(MemberStatus.ACTIVE);
     }
 
     @Test
     void reactivate () {
-        Member member = new Member("hdh@test.com","hdh","secret");
+
         member.activate();
         assertThatThrownBy(() -> {
             member.activate();
@@ -39,11 +69,30 @@ class MemberTest {
 
     @Test
     void deactivate () {
-        Member member = new Member("hdh@test.com","hdh","secret");
+
         member.activate();
 
         member.deactivate();
 
         assertThat(member.getStatus()).isEqualTo(MemberStatus.DEACTIVATE);
+    }
+
+    @Test
+    void veryfiPassword () {
+        assertThat(member.verifyPassword("secret",passwordEncoder)).isTrue();
+        assertThat(member.verifyPassword("secret2",passwordEncoder)).isFalse();
+    }
+
+    @Test
+    void changeNickname () {
+        member.changeNickname("ronaldo");
+        assertThat(member.getNickName()).isEqualTo("ronaldo");
+    }
+
+    @Test
+    void changePassword() {
+        member.changePassword("secret3",passwordEncoder);
+
+        assertThat(member.getPasswordHash()).isEqualTo(passwordEncoder.encode("secret3"));
     }
 }
