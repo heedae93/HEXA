@@ -5,23 +5,27 @@ import lombok.NonNull;
 
 import java.util.Objects;
 
+import static java.util.Objects.requireNonNull;
+
 @Getter
 public class Member {
 //    회원 Entity의 속성 정의
     String email;
-    String nickName;
+    String nickname;
     String passwordHash;
     MemberStatus status;
 
-    private Member( String email, String nickName, String passwordHash) {
-        this.email = Objects.requireNonNull(email);
-        this.nickName = Objects.requireNonNull(nickName);
-        this.passwordHash = Objects.requireNonNull(passwordHash);
-        this.status = MemberStatus.PENDING;
+    private Member( ) {
     }
 
-     static Member create (String email, String nickName, String password, PasswordEncoder passwordEncoder){
-        return new Member(email,nickName,passwordEncoder.encode(password));
+     static Member create (MemberCreateRequest memberCreateRequest, PasswordEncoder passwordEncoder){
+        Member member = new Member();
+        member.email = requireNonNull(memberCreateRequest.email());
+        member.nickname = requireNonNull(memberCreateRequest.nickname());
+        member.passwordHash = requireNonNull(passwordEncoder.encode(memberCreateRequest.password()));
+        member.status = MemberStatus.PENDING;
+
+        return member;
     }
 
     public void activate () {
@@ -43,10 +47,14 @@ public class Member {
     }
 
     public void changeNickname(String newNickname) {
-        this.nickName = newNickname;
+        this.nickname = requireNonNull(newNickname);
     }
 
     public void changePassword(String newPassword, PasswordEncoder passwordEncoder) {
-        this.passwordHash = passwordEncoder.encode(newPassword);
+        this.passwordHash = passwordEncoder.encode(requireNonNull(newPassword));
+    }
+
+    public boolean isActive() {
+        return this.status == MemberStatus.ACTIVE;
     }
 }

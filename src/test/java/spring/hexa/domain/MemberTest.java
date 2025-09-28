@@ -27,7 +27,7 @@ class MemberTest {
         };
 
 
-        member = Member.create("hdh@test.com", "hdh", "secret",passwordEncoder );
+        member = Member.create(new MemberCreateRequest("hdh@test.com","hdh","secret"), passwordEncoder );
     }
 
     @Test
@@ -37,7 +37,7 @@ class MemberTest {
 
     @Test
     void nullCheck () {
-        assertThatThrownBy(() -> member.create(null, "hdh", "secret", new PasswordEncoder() {
+        assertThatThrownBy(() -> member.create(new MemberCreateRequest(null,"hdh","secret"), new PasswordEncoder() {
             @Override
             public String encode(String password) {
                 return "";
@@ -86,7 +86,7 @@ class MemberTest {
     @Test
     void changeNickname () {
         member.changeNickname("ronaldo");
-        assertThat(member.getNickName()).isEqualTo("ronaldo");
+        assertThat(member.getNickname()).isEqualTo("ronaldo");
     }
 
     @Test
@@ -94,5 +94,16 @@ class MemberTest {
         member.changePassword("secret3",passwordEncoder);
 
         assertThat(member.getPasswordHash()).isEqualTo(passwordEncoder.encode("secret3"));
+    }
+
+    @Test
+    void isActive () {
+        assertThat(member.isActive()).isFalse();
+
+        member.activate();
+        assertThat(member.isActive()).isTrue();
+
+        member.deactivate();
+        assertThat(member.isActive()).isFalse();
     }
 }
