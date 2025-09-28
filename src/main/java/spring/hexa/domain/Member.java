@@ -4,13 +4,14 @@ import lombok.Getter;
 import lombok.NonNull;
 
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 import static java.util.Objects.requireNonNull;
 
 @Getter
 public class Member {
 //    회원 Entity의 속성 정의
-    String email;
+    Email email;
     String nickname;
     String passwordHash;
     MemberStatus status;
@@ -20,7 +21,8 @@ public class Member {
 
      static Member create (MemberCreateRequest memberCreateRequest, PasswordEncoder passwordEncoder){
         Member member = new Member();
-        member.email = requireNonNull(memberCreateRequest.email());
+
+        member.email = new Email(memberCreateRequest.email());
         member.nickname = requireNonNull(memberCreateRequest.nickname());
         member.passwordHash = requireNonNull(passwordEncoder.encode(memberCreateRequest.password()));
         member.status = MemberStatus.PENDING;
