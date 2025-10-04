@@ -1,30 +1,38 @@
 package spring.hexa.domain;
 
-import lombok.Getter;
-import lombok.NonNull;
-
-import java.util.Objects;
-import java.util.regex.Pattern;
+import jakarta.persistence.*;
+import lombok.*;
 
 import static java.util.Objects.requireNonNull;
 
+@Entity
 @Getter
+@ToString
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Member {
-//    회원 Entity의 속성 정의
-    Email email;
-    String nickname;
-    String passwordHash;
-    MemberStatus status;
 
-    private Member( ) {
-    }
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-     static Member create (MemberCreateRequest memberCreateRequest, PasswordEncoder passwordEncoder){
+    @Embedded
+    private Email email;
+
+    private String nickname;
+
+    private String passwordHash;
+
+    @Enumerated(EnumType.STRING)
+    private MemberStatus status;
+
+
+
+    public static Member create (MemberRegisterRequest memberRegisterRequest, PasswordEncoder passwordEncoder){
         Member member = new Member();
 
-        member.email = new Email(memberCreateRequest.email());
-        member.nickname = requireNonNull(memberCreateRequest.nickname());
-        member.passwordHash = requireNonNull(passwordEncoder.encode(memberCreateRequest.password()));
+        member.email = new Email(memberRegisterRequest.email());
+        member.nickname = requireNonNull(memberRegisterRequest.nickname());
+        member.passwordHash = requireNonNull(passwordEncoder.encode(memberRegisterRequest.password()));
         member.status = MemberStatus.PENDING;
 
         return member;
