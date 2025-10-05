@@ -2,6 +2,8 @@ package spring.hexa.domain;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.NaturalIdCache;
 
 import static java.util.Objects.requireNonNull;
 
@@ -9,6 +11,7 @@ import static java.util.Objects.requireNonNull;
 @Getter
 @ToString
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NaturalIdCache
 public class Member {
 
     @Id
@@ -16,6 +19,7 @@ public class Member {
     private Long id;
 
     @Embedded
+    @NaturalId
     private Email email;
 
     private String nickname;
