@@ -15,19 +15,19 @@ class MemberTest {
     @BeforeEach
     void setUp () {
         this.passwordEncoder = createPasswordEncoder();
-        member = Member.create(createMemberRegisterRequest("hdh@test.com"), passwordEncoder );
+        member = Member.register(createMemberRegisterRequest("hdh@test.com"), passwordEncoder );
     }
 
 
 
     @Test
-    void createMember () {
+    void registerMember() {
         assertThat(member.getStatus()).isEqualTo(MemberStatus.PENDING);
     }
 
     @Test
     void nullCheck () {
-        assertThatThrownBy(() -> member.create(createMemberRegisterRequest(null), new PasswordEncoder() {
+        assertThatThrownBy(() -> member.register(createMemberRegisterRequest(null), new PasswordEncoder() {
             @Override
             public String encode(String password) {
                 return "";
@@ -100,7 +100,7 @@ class MemberTest {
     @Test
     void invalidEmail () {
         assertThatThrownBy(() ->
-                Member.create(createMemberRegisterRequest("invalid Email"),passwordEncoder)
+                Member.register(createMemberRegisterRequest("invalid Email"),passwordEncoder)
                 ).isInstanceOf(IllegalArgumentException.class);
     }
 }

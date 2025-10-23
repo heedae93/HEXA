@@ -9,4 +9,6 @@ import spring.hexa.domain.MemberRegisterRequest;
  */
 public interface MemberRegister {
     Member register(@Valid MemberRegisterRequest memberRegisterRequest);
+
+    Member activate(Long memberId);
 }

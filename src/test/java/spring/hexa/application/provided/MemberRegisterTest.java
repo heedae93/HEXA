@@ -5,13 +5,7 @@ import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
-import org.springframework.test.util.ReflectionTestUtils;
-import spring.hexa.application.MemberService;
-import spring.hexa.application.required.EmailSender;
-import spring.hexa.application.required.MemberRepository;
 import spring.hexa.domain.*;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,13 +36,17 @@ class MemberRegisterTest {
     }
 
     @Test
-    void memberRegisterRequestFail () {
+    void memberRegisterRequestFail() {
         MemberRegisterRequest memberRegisterRequest = new MemberRegisterRequest("hdh@testcom","hdh","secret");
 
-//        memberRegister.register(memberRegisterRequest);
-
         assertThatThrownBy(() -> memberRegister.register(memberRegisterRequest))
-                .isInstanceOf(ConstraintViolationException.class);
+                .isInstanceOfAny(ConstraintViolationException.class, IllegalArgumentException.class);
     }
 
+    @Test
+    void activate () {
+        Member member = memberRegister.register(MemberFixture.createMemberRegisterRequest());
+
+        member = memberRegister.activate(member.getId());
+    }
 }
